@@ -4,90 +4,114 @@
 # File  : tp.sh
 # Date  : 07/17/17
 # -----------------------------------------------------------------------------
-
+# Holds machine type value (MACKLIN/WIN)
+machine=""
 
 usage()
 {
-    echo "TP"
-    echo "Description A simple cl tool to change directories"
-    echo 	"-a [dir name]            Add directory to teleport list"
-    echo	"-d [dir name]            Remove directory from list$"
-    echo	"-g                       Get all directories from list and print name"
-    echo	"-h                       Prints help/usage string"
-    echo	"-m [dir name] [dir name] Move/Rename name in list to a different name"
-    echo	"-r [dir name]            Remove directory name from list"
-    echo	"-R Remove all            directories"
-    echo	"-t [dir name]            Test directory name by printing full path of directory"
-    echo	"-u                       Update teleport"
-    echo	"-v                       Print current version of teleport"
+    echo "TP: [TELEPORT]"
+    echo "Description: A simple cl tool to change directories"
+    echo "usage:"
+    echo "    linux/mac: tp [options] [dirname]"
+    echo "    windows  : sh tp [options] [dirname] (NOTE: must have cygwin/bash support"
+    echo "Options:"
+    echo "      -a [dir name]            Add directory to teleport list"
+    echo "      -d [dir name]            Remove directory from list$"
+    echo "      -g                       Get all directories from list and print name"
+    echo "      -h                       Prints help/usage string"
+    echo "      -m [dir name] [dir name] Move/Rename name in list to a different name"
+    echo "      -r [dir name]            Remove directory name from list"
+    echo "      -R Remove all            directories"
+    echo "      -t [dir name]            Test directory name by printing full path of directory"
+    echo "      -u                       Update teleport list"
+    echo "      -v                       Print current version of teleport"
 }
 
 
 version()
 {
-    echo "TP version: 0.0.1"
+    echo "TP version: 0.0.4"
 }
 
+update()
+{
+    echo "Update"
+}
 
 make()
 {
     # checks file level then dir level to make sure existance of tp directory
-    if [ ! -f ~/.teleport/directories.txt ]; then
-        if [ ! -d ~/.teleport ]; then 
-          mkdir ~/.teleport
+    if [ ! -f ~/.bin/directories.txt ]; then
+        if [ ! -d ~/.bin ]; then 
+          mkdir ~/.bin
         fi
-        touch ~/.teleport/directories_aliases
+        touch ~/.bin/directories_aliases
     fi
 }
 
 load()
 {
-    # load aliases into shell by sourcing alias file
-    source ~/.teleport/directories_aliases
+    # load aliases into shell by running alias commands
+    if [ ! -f ~/.bin/directories_alias ]; then
+        echo "alias file not found"
+        exit -1
+    fi
+    while IFS=' ' -r line || [[ -n "$line" ]]; do
+        echo  "line: $line"
+    done < ~/.bin/directories_alias
+}
+unload()
+{
+    # unload aliases from shell by running unalias command
+    exit 1
 }
 
-
-push()
+addDir()
 {
     make
-    echo -e "alias $1=$PWD" >> ~/.teleport/directories_aliases
+    echo -e "alias $1=$PWD" >> ~/.bin/directories_aliases
     echo "Created TP Link: $1"
     load
 }
 
 
-pull()
+delDir()
 {
     make
     echo "$1"
-    #set -i.bak '/"$(2)/d' ~/.teleport/directories_aliases
+    #set -i.bak '/"$(2)/d' ~/.bin/directories_aliases
 }
 
 
-pullAll()
+delDirs()
 {
     
-    rm -f ~/.teleport/directories_aliases
-    touch ~/.teleport/directories_aliases
-    echo "Cleared TP Locations"
+    rm -f ~/.bin/directories_aliases
+    touch ~/.bin/directories_aliases
+    echo "Cleared TP Dirations"
 }
 
 
 # checks for empty args
-echo $(uname)
-echo $HOME
 if [[ $# == "0" ]]; then
-    usage
-    exit 0
+    usage && exit 0
 fi
 
+# get machine type
+case "$(uname)" in
+    LINUX*|DARWIN*)
+        machine="MACKLIN"
+    ;;
+    CYGWIN*|MINGW*|MYSYS)
+        machine="WIN"
+    ;;  
+esac
 
 # parses input args
 while getopts "r:Ra:hvu" opt; do
     case $opt in
         \?)
-            
-            echo "Invalid option -$OPTARG" >&2 && exit -1
+            echo "Invalid option -$OPTARG" && exit -1
         ;;
         h)
             usage && exit 0
@@ -96,16 +120,16 @@ while getopts "r:Ra:hvu" opt; do
             version && exit 0
         ;;
         a)
-            echo "add name" && push "$2" && exit 1
+            addDir "$2" && exit 1
         ;;
         r)
-            echo "remove name" && pull "$2" && exit 1
+            delDir "$2" && exit 1
         ;;
         R)
-            echo "Delete All" && pullAll && exit 1
+            delDirs && exit 1
         ;;
         u)
-            echo "undo deletion" && exit 1
+            update && exit 1
         ;;
     esac
 done
