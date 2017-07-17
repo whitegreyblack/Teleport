@@ -1,0 +1,34 @@
+#!/bin/bash
+# -----------------------------------------------------------------------------
+# Author: Sam Whang
+# File  : uninstall.sh
+# Date  : 07/17/17
+# -----------------------------------------------------------------------------
+dne()
+{
+    echo "Error: TP not installed"
+}
+safe()
+{
+    echo "Uninstalled Teleport"
+}
+
+case "$(uname)" in
+    LINUX*|DARWIN*)
+        if [ -f ~/usr/local/bin/tp ]; then
+            rm ~/usr/local/bin/tp
+            safe
+        else
+            dne
+        fi
+    ;;
+    CYGWIN*|MINGW*|MYSYS*)
+        if [ -d ~/.bin ]; then
+            rm -rf ~/.bin
+            safe
+        else
+            dne
+        fi
+    ;;
+esac
+

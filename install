@@ -1,0 +1,23 @@
+#!/bin/bash
+# -----------------------------------------------------------------------------
+# Author: Sam Whang
+# File  : install.sh
+# Date  : 07/17/17
+# -----------------------------------------------------------------------------
+
+if [ ! -f $PWD/tp ]; then
+    echo -e "File doesn't exist\nExitting" && exit -1
+else
+    # if linux or mac
+    case "$(uname)" in
+        LINUX*|DARWIN*)
+            chmod a+x tp
+            cp tp ~/usr/local/bin > /dev/null2>&1 || { echo "Fail: Try Sudo"; exit 1; }
+        ;;
+    # if windows or cygwin
+        CYGWIN*|MINGW*|MYSYS)
+            mkdir ~/.bin
+            cp tp ~/.bin || echo "Failure"; exit 1;
+        ;;
+    esac
+fi
