@@ -1,9 +1,11 @@
 #!/bin/bash
 # -----------------------------------------------------------------------------
 # Author: Sam Whang
-# File  : tp py
+# File  : tp.sh
 # Date  : 07/17/17
 # -----------------------------------------------------------------------------
+
+
 usage()
 {
     echo "TP"
@@ -19,37 +21,58 @@ usage()
     echo	"-u                       Update teleport"
     echo	"-v                       Print current version of teleport"
 }
+
+
 version()
 {
     echo "TP version: 0.0.1"
 }
+
+
 make()
 {
+    # checks file level then dir level to make sure existance of tp directory
     if [ ! -f ~/.teleport/directories.txt ]; then
         if [ ! -d ~/.teleport ]; then 
           mkdir ~/.teleport
         fi
-        #echo > ~/.teleport/directories.txt
-        touch ~/.teleport/directories.txt
+        touch ~/.teleport/directories_aliases
     fi
 }
+
+load()
+{
+    # load aliases into shell by sourcing alias file
+    source ~/.teleport/directories_aliases
+}
+
+
 push()
 {
-    make && echo -e "$1; $PWD" >> ~/.teleport/directories.txt && echo "Created TP Link"
-    echo $1
+    make
+    echo -e "alias $1=$PWD" >> ~/.teleport/directories_aliases
+    echo "Created TP Link: $1"
+    load
 }
+
+
 pull()
 {
     make
-    echo "/$(2)"
-    #set -i.bak '/"$(2)/d' ~/.teleport/directories.txt
+    echo "$1"
+    #set -i.bak '/"$(2)/d' ~/.teleport/directories_aliases
 }
+
+
 pullAll()
 {
-    rm -f ~/.teleport/directories.txt || return 1
-    touch ~/.teleport/directories || return 1
+    
+    rm -f ~/.teleport/directories_aliases
+    touch ~/.teleport/directories_aliases
     echo "Cleared TP Locations"
 }
+
+
 # checks for empty args
 echo $(uname)
 echo $HOME
@@ -57,10 +80,13 @@ if [[ $# == "0" ]]; then
     usage
     exit 0
 fi
+
+
 # parses input args
 while getopts "r:Ra:hvu" opt; do
     case $opt in
         \?)
+            
             echo "Invalid option -$OPTARG" >&2 && exit -1
         ;;
         h)
@@ -73,10 +99,10 @@ while getopts "r:Ra:hvu" opt; do
             echo "add name" && push "$2" && exit 1
         ;;
         r)
-            echo "remove name" && exit 1
+            echo "remove name" && pull "$2" && exit 1
         ;;
         R)
-            echo "Delete All" && exit 1
+            echo "Delete All" && pullAll && exit 1
         ;;
         u)
             echo "undo deletion" && exit 1
