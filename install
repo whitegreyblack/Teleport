@@ -5,22 +5,39 @@
 # Date  : 07/17/17
 # -----------------------------------------------------------------------------
 
+# TODO: not copying over tp if versions already the same
+
 # need to check if tp file exists in directory
-if [ ! -f $PWD/tp ]; then
-    echo -e "File doesn't exist\nExitting" && exit -1
-else
-    # if linux or mac
-    case "$(uname)" in
-        LINUX*|DARWIN*)
-            chmod a+x tp
-            cp tp /usr/local/bin > /dev/null2>&1 || { echo "Fail: Try Sudo"; exit 1; }
-        ;;
-    # if windows or cygwin
-        CYGWIN*|MINGW*|MYSYS)
-            if [ ! -d ~/.bin ]; then
-                mkdir ~/.bin
-            fi
-            cp tp ~/.bin || echo "Failure"; exit 1;
-        ;;
-    esac
+if [ ! -f $PWD/tp ]; 
+then
+    echo -e "File doesn't exist\nExitting" && exit 1
+fi
+
+# need to check directory we are copying to
+if [ ! -d /usr/local/bin ]; 
+then
+    echo "Creating necessary folders '/usr/local/bin'"
+    mkdir /usr/local/bin > /dev/null 2>&1 || { mkdir /usr/local; mkdir /usr/local/bin; }
+fi
+chmod a+x tp
+cp tp /usr/local/bin > /dev/null 2>&1 || { echo "Install Failed: Try Install With Sudo"; exit 1; }
+
+# checks file level then dir level to make sure existance of tp directory
+if [ ! -f ~/.teleport/.tp_aliases ]; then
+    if [ ! -d ~/.teleport ]; then 
+        mkdir ~/.teleport
+    fi
+    touch ~/.teleport/.tp_aliases
+fi
+
+# checks bashrc for existance or previous install of teleport
+if [[ ! -f ~/.bashrc ]] || $(grep -Fxq "source ~/.teleport/.tp_aliases" ~/.bashrc); then
+    if [ ! -f ~/.bashrc ]; then
+        touch ~/.bashrc
+    fi  
+    echo "if [ -f ~/.teleport/.tp_aliases ];" >> ~/.bashrc
+    echo "then" >> ~/.basrc
+    echo "    source ~/.teleport/.tp_aliases" >> ~/.bashrc
+    echo "fi" >> ~/.bashrc
+    echo "sourcing"
 fi

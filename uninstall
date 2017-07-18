@@ -4,31 +4,38 @@
 # File  : uninstall.sh
 # Date  : 07/17/17
 # -----------------------------------------------------------------------------
-dne()
-{
-    echo "Error: TP not installed"
-}
-safe()
-{
-    echo "Uninstalled Teleport"
-}
 
-case "$(uname)" in
-    LINUX*|DARWIN*)
-        if [ -f ~/usr/local/bin/tp ]; then
-            rm ~/usr/local/bin/tp
-            safe
-        else
-            dne
-        fi
-    ;;
-    CYGWIN*|MINGW*|MYSYS*)
-        if [ -d ~/.bin ]; then
-            rm -rf ~/.bin
-            safe
-        else
-            dne
-        fi
-    ;;
-esac
+# check if install even exists
+if [ ! -f /usr/local/bin/tp ];
+then
+    echo "teleport not installed"
+else
+    echo "uninstalling teleport"
+    rm /usr/local/bin/tp
+fi
 
+# check if aliases file exists
+if [ -f ~/.teleport/.tp_aliases ];
+then
+    echo -n "uninstall aliases as well? [Y/n]: "
+    read -r answer
+    if [[ "$answer" == "Y" || "$answer" == "y" ]];
+    then
+        # parse through alias list
+        echo "uninstalling aliases"
+        while IFS='=' read -r line || [[ -n "$line" ]];
+        do
+            word=$(echo "$line" | awk '{split($2,a,"="); print a[1]}')
+            [[ $(type -t $word) == "alias" ]] && unalias $word
+        done < ~/.teleport/.tp_aliases
+        rm -rf ~/.teleport/.tp_aliases || exit 0
+    fi
+else
+    echo "aliases not installed" && exit 1
+fi
+
+# checks for teleport script in bashrc
+if [[ -f ~/.bashrc ]] && $(grep -Fxq "" ~/.bashrc); then
+    echo "found"
+fi
+echo "uninstall complete"

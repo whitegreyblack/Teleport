@@ -1,15 +1,24 @@
 #!/bin/bash
 # -----------------------------------------------------------------------------
 # Author: Sam Whang
-# File  : tp.sh
+# File  : tp [ for MICROSOFT/MS ]
 # Date  : 07/17/17
 # -----------------------------------------------------------------------------
 
+# EXIT 0(TRUE), 1(FALSE)
 
 # global variables
 machine=""
 directory=""
+debug=true
 
+debug()
+{
+    if [ "$debug" = true ] ; 
+    then
+        echo "$1" > debug.log ;
+    fi    
+}
 
 usage()
 {
@@ -18,6 +27,12 @@ usage()
     echo "usage:"
     echo "    linux/mac: tp [options] [dirname]"
     echo "    windows  : sh tp [options] [dirname] (NOTE: must have cygwin/bash support"
+    options
+    version
+}
+
+options()
+{
     echo "Options:"
     echo "      -a [dir name]            Add directory to teleport list"
     echo "      -d [dir name]            Remove directory from list$"
@@ -27,6 +42,7 @@ usage()
     echo "      -p                       Prints all path variables currently in tp"
     echo "      -r [dir name]            Remove directory name from list"
     echo "      -R                       Remove all directories"
+    echo "      -s                       Source all directories"
     echo "      -t [dir name]            Test directory name by printing full path of directory"
     echo "      -u                       Update teleport list"
     echo "      -v                       Print current version of teleport"
@@ -35,7 +51,7 @@ usage()
 
 version()
 {
-    echo "TP version: 0.0.4"
+    echo "TP version: 0.0.6"
 }
 
 update()
@@ -43,57 +59,42 @@ update()
     echo "Update"
 }
 
-make()
-{
-    # checks file level then dir level to make sure existance of tp directory
-    if [[ "$machine" == "WINNY" ]]; then
-        if [ ! -f ~/.bin/tp_variables.bat ]; then
-            if [ ! -d ~/.bin ]; then 
-                mkdir ~/.bin
-            fi
-            touch ~/.bin/tp_variables.bat
-        fi
-    elif [[ "$machine" == "MACKY" ]]; then
-        if [ ! -f ~/.teleport/.aliases ]; then
-            if [ ! -d ~/.teleport ]; then
-                mkdir ~/.teleport
-            fi
-            touch ~/.teleport/tp_aliases
-        fi
-    fi
-}
-
 load()
 {
     # load aliases into shell by running alias commands
-        if [ ! -f ~/.bin/.teleport_aliases ]; then
-            echo "alias file not found"
-            exit -1
+    if [ ! -f ~/.teleport/.tp_aliases ]; then
+        echo "alias file not found"
+        exit 1
+    fi
+    echo "reading files"
+    echo $PWD
+    while IFS=' ' read -r line || [[ -n "$line" ]]; do
+        echo "---- $1"
+        if [[ *"$1"*="$line" ]]; then
+            echo matches
+            $mod="echo '$line'|set"
+            export $line
+            echo "$line"
         fi
-        echo "reading files"
-        echo $PWD
-        while IFS=' ' read -r line || [[ -n "$line" ]]; do
-            echo "---- $1"
-            if [[ *"$1"*="$line" ]]; then
-                echo matches
-                $mod="echo '$line'|set"
-                export $line
-                echo "$line"
-            fi
-        done < ~/.bin/.teleport_aliases.bat
+    done < ~/.bin/.teleport_aliases.bat
 }
 unload()
 {
     # unload aliases from shell by running unalias command
+
     exit 1
 }
-
-addDir()
+refresh()
 {
-    make
-    echo -e "$1=$2" >> ~/.bin/.teleport_aliases
-    source ~/.bin/.teleport_aliases
-    echo "add done"
+    if [[ -f ~/.teleport/.tp_aliases ]]; then
+      echo "file exists"
+    fi
+    [[ -f ~/.teleport/.tp_aliases ]] && echo "easd"
+}
+addPath()
+{
+    echo -e "alias $1='cd $2'" >> ~/.teleport/.tp_aliases
+    refresh
 }
 
 
@@ -119,59 +120,53 @@ delDirs()
     fi
     echo "Cleared TP Dirations"
 }
+
 # -----------------------------------------------------------------------------
 # Functions End | Argument Parsing Start
 # -----------------------------------------------------------------------------
 
 # checks for empty args
 if [[ $# == "0" ]]; then
-    usage && exit 0
+    usage && exit 1
 fi
 
-# get machine type
-case "$(uname)" in
-    LINUX*|DARWIN*) machine="MACKY" ;;
-    CYGWIN*|MINGW*) machine="WINNY" ;;  
-esac
-
 # parses input args
-while getopts "r:Ra:A:c:hvu" opt; do
+while getopts "a:cd:ghlm:rRstuv" opt; do
     case $opt in
-        \?) echo "Invalid command" && exit -1;;
+        \?) echo "Invalid command" && options && exit -1;;
         a)
             if [[ $3 == "" ]]; then
-              echo "tp: option will add current working directory"
-              addDir "$2" "$PWD"
-              exit 1
+                echo "tp: option will add current working directory"
+                addPath "$2" "$PWD"
             elif [ -d "$3" ]; then
-                if [ "$machine" == "WINNY" ]; then
-                    echo "Windows Machine" 
-                    CWD="$(cygpath -aw $(PWD))"
-                else
-                    CWD="$(PWD)"
-                fi
+                echo "Windows Machine" 
+                CWD="$(cygpath -aw $(PWD))"
                 echo $CWD
-                addDir "$2" "$CWD" && exit 1
+                addPath "$2" "$CWD"
             else
                 echo "tp: second argument for option invalid: not a directory"
-                exit -1
             fi
         ;;
         c)
-            if [[ $3 == "" ]]; then 
-                echo "tp: option requires a second argument -- c" 
-            fi
-            exit 1
-        ;; 
-        d) echo "delete from list" && exit 1 ;;
+            [ -f ~/.teleport/.tp_aliases ] && cat ~/.teleport/.tp_aliases
+        ;;
+        d) 
+            delPath
+        ;;
         g) echo "go to path in list" && exit 1 ;;
-        h) echo "print help/usage" && exit 1 ;;
-        m) echo "move path to different name" && exit 1 ;;
-        p) echo "print all paths in list" && exit 1 ;; 
-        r) delDir "$2" && exit 1 ;;
-        R) delDirs && exit 1 ;;
+        h) usage && exit 1 ;;
+        l) echo "print all paths" && exit 1 ;;
+        m) if [[ $3 == "" ]]; then 
+              options
+           fi
+           exit 1 
+        ;;
+        r) delDir "$2" && exit 0 ;;
+        R) delDirs && exit 0 ;;
+        s) source ~/.bashrc ;;
         t) echo "test path" && exit 1 ;;
         u) update && exit 1 ;;
         v) version && exit 1 ;;
     esac
 done
+. ~/.bashrc
