@@ -5,8 +5,6 @@
 # Date  : 07/17/17
 # -----------------------------------------------------------------------------
 
-# TODO: not copying over tp if versions already the same
-
 # need to check if tp file exists in directory
 if [ ! -f $PWD/tp ]; 
 then
@@ -19,25 +17,34 @@ then
     echo "Creating necessary folders '/usr/local/bin'"
     mkdir /usr/local/bin > /dev/null 2>&1 || { mkdir /usr/local; mkdir /usr/local/bin; }
 fi
+
+# make script executable and copy to bin or path
 chmod a+x tp
 cp tp /usr/local/bin > /dev/null 2>&1 || { echo "Install Failed: Try Install With Sudo"; exit 1; }
 
 # checks file level then dir level to make sure existance of tp directory
-if [ ! -f ~/.teleport/.tp_aliases ]; then
-    if [ ! -d ~/.teleport ]; then 
+if [ ! -f ~/.teleport/.tp_aliases ]; 
+then
+    if [ ! -d ~/.teleport ];
+    then 
         mkdir ~/.teleport
     fi
     touch ~/.teleport/.tp_aliases
 fi
 
 # checks bashrc for existance or previous install of teleport
-if [[ ! -f ~/.bashrc ]] || $(grep -Fxq "source ~/.teleport/.tp_aliases" ~/.bashrc); then
-    if [ ! -f ~/.bashrc ]; then
-        touch ~/.bashrc
-    fi  
+if [ ! -f ~/.bashrc ]; 
+then
+    touch ~/.bashrc
+fi  
+
+# if bashrc exists looks for tp command, inserts if unfound
+if ! grep -q "source ~/.teleport/.tp_aliases" ~/.bashrc; 
+then
     echo "if [ -f ~/.teleport/.tp_aliases ];" >> ~/.bashrc
-    echo "then" >> ~/.basrc
+    echo "then" >> ~/.bashrc
     echo "    source ~/.teleport/.tp_aliases" >> ~/.bashrc
     echo "fi" >> ~/.bashrc
     echo "sourcing"
 fi
+echo "teleport install complete"

@@ -6,36 +6,30 @@
 # -----------------------------------------------------------------------------
 
 # check if install even exists
-if [ ! -f /usr/local/bin/tp ];
+if [ -f /usr/local/bin/tp ];
 then
-    echo "teleport not installed"
-else
-    echo "uninstalling teleport"
     rm /usr/local/bin/tp
 fi
 
 # check if aliases file exists
-if [ -f ~/.teleport/.tp_aliases ];
+if [ -s ~/.teleport/.tp_aliases ];
 then
-    echo -n "uninstall aliases as well? [Y/n]: "
+    echo -n "$ uninstall aliases as well? [Y/n]: "
     read -r answer
     if [[ "$answer" == "Y" || "$answer" == "y" ]];
     then
         # parse through alias list
-        echo "uninstalling aliases"
         while IFS='=' read -r line || [[ -n "$line" ]];
         do
             word=$(echo "$line" | awk '{split($2,a,"="); print a[1]}')
             [[ $(type -t $word) == "alias" ]] && unalias $word
         done < ~/.teleport/.tp_aliases
-        rm -rf ~/.teleport/.tp_aliases || exit 0
+        rm -rf ~/.teleport/ || exit 1
     fi
-else
-    echo "aliases not installed" && exit 1
 fi
 
 # checks for teleport script in bashrc
-if [[ -f ~/.bashrc ]] && $(grep -Fxq "" ~/.bashrc); then
-    echo "found"
+if [[ -f ~/.bashrc ]] && $(grep -q "~/.teleport/.tp_aliases" ~/.bashrc); then
+    sed -i.bak '/\-f \~\/.teleport\/.tp\_aliases/,+3d' ~/.bashrc
 fi
-echo "uninstall complete"
+echo "teleport uninstall complete"
