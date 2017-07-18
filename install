@@ -20,8 +20,8 @@ fi
 # need to check directory we are copying to
 if [ ! -d /usr/local/bin ]; 
 then
-    echo "Creating necessary folders '/usr/local/bin'"
-    mkdir /usr/local/bin > /dev/null 2>&1 || { mkdir /usr/local; mkdir /usr/local/bin; }
+    echo -n "Creating necessary folders '/usr/local/bin' "
+    mkdir /usr/local/bin > /dev/null 2>&1 || { echo " | nested layers"; mkdir /usr/local; mkdir /usr/local/bin; }
 fi
 
 # make script executable and copy to bin or path
