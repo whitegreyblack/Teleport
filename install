@@ -5,6 +5,7 @@
 # Date  : 07/17/17
 # -----------------------------------------------------------------------------
 
+# need to check if tp file exists in directory
 if [ ! -f $PWD/tp ]; then
     echo -e "File doesn't exist\nExitting" && exit -1
 else
@@ -16,7 +17,9 @@ else
         ;;
     # if windows or cygwin
         CYGWIN*|MINGW*|MYSYS)
-            mkdir ~/.bin
+            if [ ! -d ~/.bin ]; then
+                mkdir ~/.bin
+            fi
             cp tp ~/.bin || echo "Failure"; exit 1;
         ;;
     esac
