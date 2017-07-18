@@ -5,6 +5,12 @@
 # Date  : 07/17/17
 # -----------------------------------------------------------------------------
 
+# fast install -- used for reinstallation to only copy new version of tp over to bin directory
+if [[ $# == "1" && $2 == $(getopts "a" opt) ]]; then
+    cp tp /usr/local/bin > /dev/null 2>&1 || { echo "Installed Failed: Try Install With Sudo"; exit 1; }
+    exit 0
+fi
+
 # need to check if tp file exists in directory
 if [ ! -f $PWD/tp ]; 
 then
@@ -45,6 +51,5 @@ then
     echo "then" >> ~/.bashrc
     echo "    source ~/.teleport/.tp_aliases" >> ~/.bashrc
     echo "fi" >> ~/.bashrc
-    echo "sourcing"
 fi
 echo "teleport install complete"

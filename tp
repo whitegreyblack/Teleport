@@ -51,7 +51,7 @@ options()
 
 version()
 {
-    echo "TP version: 0.0.6"
+    echo "TP version: 0.0.7"
 }
 
 update()
@@ -84,25 +84,20 @@ unload()
 
     exit 1
 }
-refresh()
-{
-    if [[ -f ~/.teleport/.tp_aliases ]]; then
-      echo "file exists"
-    fi
-    [[ -f ~/.teleport/.tp_aliases ]] && echo "easd"
-}
 addPath()
 {
+    if grep -q "$1" ~/.teleport/.tp_aliases;
+    then
+        echo "teleport name already exists"
+        exit 1
+    fi
+    if grep -q "$2" ~/.teleport/.tp_aliases;
+    then
+        echo "teleport path already exists"
+        exit 1
+    fi
     echo -e "alias $1='cd $2'" >> ~/.teleport/.tp_aliases
-    refresh
 }
-
-
-goto()
-{
-    echo 'goto'    
-}
-
 delDir()
 {
     make
@@ -124,7 +119,7 @@ delDirs()
 # -----------------------------------------------------------------------------
 # Functions End | Argument Parsing Start
 # -----------------------------------------------------------------------------
-
+echo "$*"
 # checks for empty args
 if [[ $# == "0" ]]; then
     usage && exit 1
@@ -139,9 +134,7 @@ while getopts "a:cd:ghlm:rRstuv" opt; do
                 echo "tp: option will add current working directory"
                 addPath "$2" "$PWD"
             elif [ -d "$3" ]; then
-                echo "Windows Machine" 
                 CWD="$(cygpath -aw $(PWD))"
-                echo $CWD
                 addPath "$2" "$CWD"
             else
                 echo "tp: second argument for option invalid: not a directory"
@@ -151,7 +144,7 @@ while getopts "a:cd:ghlm:rRstuv" opt; do
             [ -f ~/.teleport/.tp_aliases ] && cat ~/.teleport/.tp_aliases
         ;;
         d) 
-            delPath
+            delPath "$2"
         ;;
         g) echo "go to path in list" && exit 1 ;;
         h) usage && exit 1 ;;
@@ -169,4 +162,3 @@ while getopts "a:cd:ghlm:rRstuv" opt; do
         v) version && exit 1 ;;
     esac
 done
-. ~/.bashrc
