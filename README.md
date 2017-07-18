@@ -1,8 +1,13 @@
 # Teleport
 Small bash script to enable quick cds using folder nicknames
 
+<<<<<<< HEAD
 TODO:
   Change 
+=======
+TODO: Split script into Linux/Mac bash and Windows bat/ps1
+
+>>>>>>> f6a0788d69ee2afa31b5b7a26b887e2079653120
 ## Manually Install
 
 Linux/MAC: ```Copy tp into your /usr/bin folder and chmod a+x tp ```

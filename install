@@ -13,7 +13,7 @@ else
     case "$(uname)" in
         LINUX*|DARWIN*)
             chmod a+x tp
-            cp tp ~/usr/local/bin > /dev/null2>&1 || { echo "Fail: Try Sudo"; exit 1; }
+            cp tp /usr/local/bin > /dev/null2>&1 || { echo "Fail: Try Sudo"; exit 1; }
         ;;
     # if windows or cygwin
         CYGWIN*|MINGW*|MYSYS)
