@@ -3,7 +3,8 @@
 ### Files created
 ```bash
 # will hold the teleport program
-[ f ] ~/.teleport/.teleport
+~/.teleport/.teleport
+
 # will hold the aliases used in teleport
 ~/.teleport/.aliases
 ```
@@ -11,6 +12,7 @@
 ```
 # calls source on bash_aliases and teleport
 ~/.bashrc
+
 # calls source on teleport aliases
 ~/.bash_aliases
 ```
