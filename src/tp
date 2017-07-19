@@ -20,6 +20,17 @@ debug()
     fi    
 }
 
+functions()
+{
+    tpa
+    tpc
+    tpd
+    tph
+    tps
+    tpv
+    tpu    
+}
+
 usage()
 {
     echo "TP: [TELEPORT]"
@@ -162,6 +173,4 @@ while getopts "a:cd:ghlm:rRstuv" opt; do
         v) version && exit 1 ;;
     esac
 done
-echo "finished"
 source ~/.bashrc 2> /dev/null
-echo "sourced"
