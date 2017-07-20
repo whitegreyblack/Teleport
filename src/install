@@ -7,35 +7,35 @@
 
 # fast install -- used for reinstallation to only copy new version of tp over to bin directory
 if [[ $# == "1" && $2 == $(getopts "a" opt) ]]; then
-    cp tp /usr/local/bin > /dev/null 2>&1 || { echo "Installed Failed: Try Install With Sudo"; exit 1; }
+    cp teleport ~/.teleport/ > /dev/null 2>&1 || { echo "Installed Failed: Try Install With Sudo"; exit 1; }
     exit 0
 fi
 
 # need to check if tp file exists in directory
-if [ ! -f $PWD/tp ]; 
+if [ ! -f $PWD/teleport ]; 
 then
     echo -e "File doesn't exist\nExitting" && exit 1
 fi
 
 # need to check directory we are copying to
-if [ ! -d /usr/local/bin ]; 
+if [ ! -d ~/.teleport ]; 
 then
     echo -n "Creating necessary folders '/usr/local/bin' "
-    mkdir /usr/local/bin > /dev/null 2>&1 || { echo " | nested layers"; mkdir /usr/local; mkdir /usr/local/bin; }
+    mkdir ~/.teleport > /dev/null 2>&1 || { echo "Install Failed: try Install With Sudo"; exit 1; }
 fi
 
 # make script executable and copy to bin or path
-chmod a+x tp
-cp tp /usr/local/bin > /dev/null 2>&1 || { echo "Install Failed: Try Install With Sudo"; exit 1; }
+chmod a+x teleport
+cp teleport ~/.teleport > /dev/null 2>&1 || { echo "Install Failed: Try Install With Sudo"; exit 1; }
 
 # checks file level then dir level to make sure existance of tp directory
-if [ ! -f ~/.teleport/.tp_aliases ]; 
+if [ ! -f ~/.teleport/aliases ]; 
 then
     if [ ! -d ~/.teleport ];
     then 
         mkdir ~/.teleport
     fi
-    touch ~/.teleport/.tp_aliases
+    touch ~/.teleport/aliases
 fi
 
 # checks bashrc for existance or previous install of teleport
@@ -45,11 +45,12 @@ then
 fi  
 
 # if bashrc exists looks for tp command, inserts if unfound
-if ! grep -q "source ~/.teleport/.tp_aliases" ~/.bashrc; 
+if ! grep -q "-d ~/.teleport" ~/.bashrc; 
 then
-    echo "if [ -f ~/.teleport/.tp_aliases ];" >> ~/.bashrc
-    echo "then" >> ~/.bashrc
-    echo "    source ~/.teleport/.tp_aliases" >> ~/.bashrc
-    echo "fi" >> ~/.bashrc
+    echo "if [ -d ~/.teleport ];"      >> ~/.bashrc
+    echo "  for file in ~/.teleport/*" >> ~/.bashrc
+    echo "    . '$file'"               >> ~/.bashrc
+    echo "  done"                      >> ~/.bashrc
+    echo "fi"                          >> ~/.bashrc
 fi
 echo "teleport install complete"
