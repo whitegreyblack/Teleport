@@ -1,6 +1,7 @@
 #!/bin/bash
 #'''''''''''''''''''''''''''''''''#
-#       teleport functions        #
+#       teleport function         #
+#   written by Sam Whang | WGB    #
 #.................................#
 
 function teleport()
@@ -20,6 +21,7 @@ function teleport()
       h|\?)
         echo "Description: A simple cl tool to change directories"
         echo "usage: tp [-a [ALIAS] [DIRECTORY]]"
+        echo "          [-s [ALIAS]]"
         return
       ;;
       a)
