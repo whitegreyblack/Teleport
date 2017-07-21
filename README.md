@@ -1,5 +1,5 @@
 # Teleport
-Small bash script to enable quick cds using folder nicknames
+Small bash script to enable quick cds using folder nicknames for use in current and future shells
 
 ## Manually Install
 
@@ -10,18 +10,34 @@ Windows: ```Copy tp into a folder accessible by path```
 ### Linux/MAC
 ```
 $ git clone https://github.com/whitegreyblack/Teleport.git
-$ install
+$ ./install
 ```
 ### Windows with Bash Shell or Command
 ```
 $ git clone https://github.com/whitegreyblack/Teleport.git
 $ sh install
 ```
-## Design
+## Script Usage
 Using alias commands, teleport imports directory paths into shell to use as shortcuts
-
-Example:
 ```
-$ tp -g [directory nickname]
+# Commands: add, subtract, print
+$ tp -a [nickname] [optional: directory] # if directory not given, uses current working directory
+$ tp -s [nickname]
+$ tp -p [nickname]
+```
+Example: adding a directory nickname and using the nickname in the same shell
+```
+whitegreyblack@local ~/Documents/examplefolder/examplesubfolder
+$ tp -a sub  # add cwd to tp alias list and to current shell environment
+$ alias
+alias sub='cd ~/Documents/examplefolder/examplesubfolder/'
+
+whitegreyblack@local ~/Documents/examplefolder/examplesubfolder
+$ cd ~
+
+whitegreyblack@local ~
+$ sub
+
+whitegreyblack@local ~/Documents/examplefolder/examplesubfolder
+$           # directory changed to current example folder
 ``` 
-would call load from inside tp and search for an alias that matches the dir nickname
