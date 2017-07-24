@@ -1,6 +1,7 @@
 # Teleport - A small alias manager
-Tested on [bash]
+### License: [MIT]
 Teleport is a small bash script to enable quick cds using folder nicknames for use in current and future shells
+
 
 ## Manually Install
 1. Copy teleport into a folder of your choice
