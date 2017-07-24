@@ -1,15 +1,9 @@
 #!/bin/bash
-# -----------------------------------------------------------------------------
-# Author: Sam Whang
-# File  : install.sh
-# Date  : 07/17/17
-# -----------------------------------------------------------------------------
-
-# fast install -- used for reinstallation to only copy new version of tp over to bin directory
-if [[ $# == "1" && $2 == $(getopts "a" opt) ]]; then
-    cp teleport ~/.teleport/ > /dev/null 2>&1 || { echo "Installed Failed: Try Install With Sudo"; exit 1; }
-    exit 0
-fi
+# --------------------------------------------------------------------------- #
+# Author: Sam Whang                                                           #
+# File  : install.sh                                                          #
+# Date  : 07/17/17                                                            #
+# --------------------------------------------------------------------------- #
 
 # need to check if tp file exists in directory
 if [ ! -f $PWD/teleport ]; 
@@ -21,36 +15,42 @@ fi
 if [ ! -d ~/.teleport ]; 
 then
     echo -n "Creating necessary folders '/usr/local/bin' "
-    mkdir ~/.teleport > /dev/null 2>&1 || { echo "Install Failed: try Install With Sudo"; exit 1; }
+    mkdir ~/.teleport > /dev/null 2>&1
+
+    if [ ! -d ~/.teleport ];
+    then
+      echo "Install Failed: try Install With Sudo" 
+      exit 1
+    fi
 fi
 
 # make script executable and copy to bin or path
 chmod a+x teleport
-cp teleport ~/.teleport > /dev/null 2>&1 || { echo "Install Failed: Try Install With Sudo"; exit 1; }
+cp teleport ~/.teleport > /dev/null 2>&1 || \
+  { echo "Install Failed: Try Install With Sudo"; exit 1; }
+
+# exit early -- '-q' option allows for quick copy
+[[ "$#" == "1" && "$2" == "$(getopts "q" opt)" ]] && \
+  exit 0
 
 # checks file level then dir level to make sure existance of tp directory
-if [ ! -f ~/.teleport/aliases ]; 
-then
-    if [ ! -d ~/.teleport ];
-    then 
-        mkdir ~/.teleport
-    fi
-    touch ~/.teleport/aliases
-fi
+[ ! -f ~/.teleport/aliases ] && \
+  touch ~/.teleport/aliases
 
 # checks bashrc for existance or previous install of teleport
-if [ ! -f ~/.bashrc ]; 
-then
-    touch ~/.bashrc
-fi  
+[ ! -f ~/.bashrc ] && \
+  touch ~/.bashrc
 
 # if bashrc exists looks for tp command, inserts if unfound
-if ! grep -q "-d ~/.teleport" ~/.bashrc; 
+if ! grep -q " -d ~/.teleport " ~/.bashrc; 
 then
-    echo "if [ -d ~/.teleport ];"      >> ~/.bashrc
+    echo "if [ -d ~/.teleport ]"       >> ~/.bashrc
+    echo "then"                        >> ~/.bashrc
     echo "  for file in ~/.teleport/*" >> ~/.bashrc
-    echo "    . '$file'"               >> ~/.bashrc
+    echo "  do"                        >> ~/.bashrc
+    echo "    . \"\$file\""            >> ~/.bashrc
     echo "  done"                      >> ~/.bashrc
     echo "fi"                          >> ~/.bashrc
+    echo                               >> ~/.bashrc
 fi
 echo "teleport install complete"
