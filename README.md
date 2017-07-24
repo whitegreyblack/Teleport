@@ -1,32 +1,36 @@
-# Teleport
-Small bash script to enable quick cds using folder nicknames for use in current and future shells
+# Teleport - A small alias manager
+Tested on [bash]
+Teleport is a small bash script to enable quick cds using folder nicknames for use in current and future shells
 
 ## Manually Install
+1. Copy teleport into a folder of your choice
+2. Make a directory in ~ with the name ~/.teleport and create a file named "aliases"
+3. In your bashrc file or any file which your bash uses to source aliases, source the tp and aliases files
+4. Go to your favorite/most used directories and add them to the script
 
-Linux/MAC: ```Copy tp into your /usr/bin folder and chmod a+x tp ```
+## Command Line Install/Uninstall
+### Linux/MAC or Windows with Bash Shell
+```sh
+# Install Teleport
+$ git clone https://github.com/whitegreyblack/Teleport.git
+$ cd Teleport/
+$ src/install
 
-Windows: ```Copy tp into a folder accessible by path```
-## Command Line Install
-### Linux/MAC
-```
-$ git clone https://github.com/whitegreyblack/Teleport.git
-$ ./install
-```
-### Windows with Bash Shell or Command
-```
-$ git clone https://github.com/whitegreyblack/Teleport.git
-$ sh install
+# Uninstall Teleport 
+$ src/uninstall
+$ cd
+$ rm -rf Teleport # to remove the script directory
 ```
 ## Script Usage
 Using alias commands, teleport imports directory paths into shell to use as shortcuts
-```
-# Commands: add, subtract, print
+```sh
+# Commands: print, add, subtract
+$ tp # prints all aliases if they exist
 $ tp -a [nickname] [optional: directory] # if directory not given, uses current working directory
 $ tp -s [nickname]
-$ tp -p [nickname]
 ```
 Example: adding a directory nickname and using the nickname in the same shell
-```
+```sh
 whitegreyblack@local ~/Documents/examplefolder/examplesubfolder
 $ tp -a sub  # add cwd to tp alias list and to current shell environment
 $ alias
@@ -40,4 +44,19 @@ $ sub
 
 whitegreyblack@local ~/Documents/examplefolder/examplesubfolder
 $           # directory changed to current example folder
-``` 
+```
+Example: subtracting a directory nickname from shell
+```sh
+whitegreyblack@local ~
+$tp
+alias sub='cd ~/Documents/examplefolder/examplesubfolder/'
+
+whitegreyblack@local ~
+$tp -s sum
+no alias of that name
+
+whitegreyblack@local ~
+$tp -s sub
+$tp
+no aliases used for teleport
+```
